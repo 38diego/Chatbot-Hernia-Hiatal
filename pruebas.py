@@ -105,18 +105,56 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-autores = {"(2017)Modern diagnosis and treatment" : "Siegal",
-"(2018)Biologic Keyhole Mesh" : "Watkins",
-"(2018)Large Paraesophageal Hiatus Hernia" : "Dellaportas",
-"(2018)Mesh hiatal hernioplasty" : "Sathasivam",
-"(2019)Mesh erosion after hiatal hernia" : "Li",
-"(2021)When should we use mesh in laparoscopic" : "Laxague",
-"(2022)Does bioabsorbable mesh reduce" : "Clapp",
-"(2022)Does the use of bioabsorbable mesh" : "Clapp",
-"(2022)Tension-free hiatal hernia" : "Cheng",
-"(2023)Hiatal hernia repair with biosynthetic" : "Lima",
-"(2023)The mesh configurations in hiatal hernia" : "Li",
-"(2023)What works best in hiatus hernia repair" : "Temperley"}
+autores = {
+    "(2017)Modern diagnosis and treatment": {
+        "Autor": "Siegal", 
+        "Link": "https://drive.google.com/file/d/14CDqXA3pv_fUUrWGgXzYAxQGI-nKCAtR/view"
+    },
+    "(2018)Biologic Keyhole Mesh": {
+        "Autor": "Watkins", 
+        "Link": "https://drive.google.com/file/d/1yl2hWbBnOdPS0S_AOw-EczxFTMr8LdhI/view"
+    },
+    "(2018)Large Paraesophageal Hiatus Hernia": {
+        "Autor": "Dellaportas", 
+        "Link": "https://drive.google.com/file/d/1EuA4Fo1XtgvE7lGKfP7CuERu1-F2ftCR/view"
+    },
+    "(2018)Mesh hiatal hernioplasty": {
+        "Autor": "Sathasivam", 
+        "Link": "https://drive.google.com/file/d/1aQiIDtDpYCDGq4NXkZJjb6mMeDiPXFuS/view"
+    },
+    "(2019)Mesh erosion after hiatal hernia": {
+        "Autor": "Li", 
+        "Link": "https://drive.google.com/file/d/1bV-pKDckJj3sCnhqhCLMD8Z00xvWzeQ9/view"
+    },
+    "(2021)When should we use mesh in laparoscopic": {
+        "Autor": "Laxague", 
+        "Link": "https://drive.google.com/file/d/1rKkxMbqhl1dNdunHE6UghAHiI2ns7TfF/view"
+    },
+    "(2022)Does bioabsorbable mesh reduce": {
+        "Autor": "Clapp", 
+        "Link": "https://drive.google.com/file/d/1df-saLfzlCEKzlgAoUX2a3Ol5U7K4Lor/view"
+    },
+    "(2022)Does the use of bioabsorbable mesh": {
+        "Autor": "Clapp", 
+        "Link": "https://drive.google.com/file/d/11pBttIcb8V-qxDQW7MHqmr4VyZN2W0g-/view"
+    },
+    "(2022)Tension-free hiatal hernia": {
+        "Autor": "Cheng", 
+        "Link": "https://drive.google.com/file/d/1Q3cbe-oxsPk1-HZ8Auz8TjSY1-NScl5q/view"
+    },
+    "(2023)Hiatal hernia repair with biosynthetic": {
+        "Autor": "Lima", 
+        "Link": "https://drive.google.com/file/d/1WtT3Dp39O9U51w7zMPFaCteCFtYmFnry/view"
+    },
+    "(2023)The mesh configurations in hiatal hernia": {
+        "Autor": "Li", 
+        "Link": "https://drive.google.com/drive/folders/1iBc_XBhrNK-zKl_eAOMo9hSpYgA4nBkr"
+    },
+    "(2023)What works best in hiatus hernia repair": {
+        "Autor": "Temperley", 
+        "Link": "https://drive.google.com/file/d/1rvUeDJW5OWQQBvnVKc89VLQqM-Tr8CiL/view"
+    }
+}
 
 # Cargar la clave de API de OpenAI y el ID del asistente desde los secretos de Streamlit
 api_key = st.secrets["api_keys"]["openai_key"]
@@ -154,7 +192,7 @@ def format_message(text):
     def replace_citation(match):
         articulo = client.files.list().data[int(match.group(1))-1].filename
         articulo = articulo[:len(articulo)-4]
-        return f" ['{articulo}', {autores[articulo]} et al., p{int(match.group(2))+1}] "
+        return f" ['<a href=\"{autores[articulo]['Link']}\">{articulo}</a>', {autores[articulo]['Autor']} et al., p{int(match.group(2))+1}] "
 
     return re.sub(citation_pattern, replace_citation, text)
 
