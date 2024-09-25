@@ -162,7 +162,7 @@ assistant_id = st.secrets["assistant"]["id"]
 project_id = st.secrets["project_id"]["projid"]
 
 # Inicializar el cliente de OpenAI
-client = openai.OpenAI(api_key=api_key,project=project_id)
+client = OpenAI(api_key=api_key,project=project_id)
 
 # Usar columnas para colocar la imagen en la parte superior izquierda
 col1, col2 = st.columns([1, 4])
