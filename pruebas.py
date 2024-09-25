@@ -212,12 +212,19 @@ def show_conversation():
                                 f"</div>"
                 
             elif msg.role == 'assistant':
-                formatted_content = format_message(msg.content[0].text.value)
-                conversation += f"<div style='display: flex; align-items: center; margin: 5px 0;'>" \
-                                f"<img src='https://png.pngtree.com/png-vector/20220611/ourmid/pngtree-chatbot-icon-chat-bot-robot-png-image_4841963.png' alt='Descripción de la imagen' style='width: 50px; height: 50px; border-radius: 5px; margin-right: 10px;'>" \
-                                f"<div style='max-width: 55%; text-align: left; background-color: #F2F2F2; border-radius: 10px; padding: 10px; color: black;'>" \
-                                f"<strong>Asistente:</strong> {formatted_content}</div>" \
-                                f"</div>"
+                try:
+                    formatted_content = format_message(msg.content[0].text.value)
+                    conversation += f"<div style='display: flex; align-items: center; margin: 5px 0;'>" \
+                                    f"<img src='https://png.pngtree.com/png-vector/20220611/ourmid/pngtree-chatbot-icon-chat-bot-robot-png-image_4841963.png' alt='Descripción de la imagen' style='width: 50px; height: 50px; border-radius: 5px; margin-right: 10px;'>" \
+                                    f"<div style='max-width: 55%; text-align: left; background-color: #F2F2F2; border-radius: 10px; padding: 10px; color: black;'>" \
+                                    f"<strong>Asistente:</strong> {formatted_content}</div>" \
+                                    f"</div>"
+                except:
+                    conversation += f"<div style='display: flex; align-items: center; margin: 5px 0;'>" \
+                                    f"<img src='https://png.pngtree.com/png-vector/20220611/ourmid/pngtree-chatbot-icon-chat-bot-robot-png-image_4841963.png' alt='Descripción de la imagen' style='width: 50px; height: 50px; border-radius: 5px; margin-right: 10px;'>" \
+                                    f"<div style='max-width: 55%; text-align: left; background-color: #F2F2F2; border-radius: 10px; padding: 10px; color: black;'>" \
+                                    f"<strong>Asistente:</strong> {formatted_content}</div>" \
+                                    f"</div>"
                                 
         return conversation
     return ""
