@@ -159,9 +159,10 @@ autores = {
 # Cargar la clave de API de OpenAI y el ID del asistente desde los secretos de Streamlit
 api_key = st.secrets["api_keys"]["openai_key"]
 assistant_id = st.secrets["assistant"]["id"]
+project_id = st.secrets["project_id"]["projid"]
 
 # Inicializar el cliente de OpenAI
-client = OpenAI(api_key=api_key)
+client = openai.OpenAI(api_key=api_key,project=project_id)
 
 # Usar columnas para colocar la imagen en la parte superior izquierda
 col1, col2 = st.columns([1, 4])
