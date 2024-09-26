@@ -224,6 +224,7 @@ if prompt := st.chat_input():
     messages = list(client.beta.threads.messages.list(thread_id=st.session_state['thread_id']))
     if messages:  # Asegúrate de que la lista no esté vacía
         msg = messages[0].content  # Obtener el último mensaje
+        print(msg)
         st.session_state.messages.append({"role": "assistant", "content": msg})
         formatted_content = format_message(msg[0].text.value)
 
