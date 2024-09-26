@@ -22,6 +22,16 @@ st.markdown("""
     .st-emotion-cache-qdbtli {
         background-color: white !important; /* Cambia el color de fondo a blanco */
     }
+
+    .stTextInput>div>input {
+        background-color: #f0f0f0; /* Cambia este color al que desees */
+        border-radius: 10px;
+        color: black; /* Cambiar el color del texto si es necesario */
+    }
+
+    .stChatInput {
+        background-color: #f0f0f0; /* Cambia este color al que desees */
+    }
     </style>
 """, unsafe_allow_html=True)
 
