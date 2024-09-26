@@ -28,9 +28,17 @@ st.markdown("""
         border-radius: 10px;
         color: black; /* Cambiar el color del texto si es necesario */
     }
-
+    
     .stChatInput {
         background-color: #f0f0f0; /* Cambia este color al que desees */
+    }
+
+    textarea {
+        caret-color: black !important; /* Color del cursor */
+        background-color: #f0f0f0 !important;
+        color: black !important;
+        border: 2px solid #d1d1d1 !important;
+        border-radius: 10px !important;
     }
     </style>
 """, unsafe_allow_html=True)
