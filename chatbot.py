@@ -218,7 +218,7 @@ if prompt := st.chat_input():
         assistant_id=assistant_id
     )
 
-    time.sleep(10)
+    time.sleep(12)
 
     # Obtener la respuesta del asistente
     messages = list(client.beta.threads.messages.list(thread_id=st.session_state['thread_id']))
