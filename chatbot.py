@@ -244,10 +244,7 @@ if prompt := st.chat_input():
         msg = messages[0].content  # Obtener el último mensaje
         print(msg)
         st.session_state.messages.append({"role": "assistant", "content": msg})
-        try:
-            formatted_content = format_message(msg[0].text.value)
-        except:
-            formatted_content = format_message(msg)
+        formatted_content = format_message(msg[0].text.value)
 
         # Mostrar la respuesta del asistente
         st.markdown(
