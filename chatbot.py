@@ -192,7 +192,7 @@ def format_message(text):
     def replace_citation(match):
         articulo = client.files.list().data[int(match.group(1))-1].filename
         articulo = articulo[:len(articulo)-4]
-        return f" ['<a href=\"{autores[articulo]['Link']}\">{articulo}</a>', {autores[articulo]['Autor']} et al., p{int(match.group(2))+1}] "
+        return f" ['<a href=\"{autores[articulo]['Link']}\">{articulo}</a>', {autores[articulo]['Autor']} et al. " #, p{int(match.group(2))+1}] 
 
     return re.sub(citation_pattern, replace_citation, text)
 
