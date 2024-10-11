@@ -7,42 +7,6 @@ from streamlit_navigation_bar import st_navbar
 
 st.set_page_config(layout="wide")
 
-st.markdown("""
-    <style>
-    /* Fondo blanco para toda la página */
-    .main {
-        background-color: white;
-        color: black;
-    }
-
-    /* Ajustar el color de los encabezados y el texto */
-    h1, h2, h3, h4, h5, h6 {
-        color: black;
-    }
-    .st-emotion-cache-qdbtli {
-        background-color: white !important; /* Cambia el color de fondo a blanco */
-    }
-
-    .stTextInput>div>input {
-        background-color: #f0f0f0; /* Cambia este color al que desees */
-        border-radius: 10px;
-        color: black; /* Cambiar el color del texto si es necesario */
-    }
-    
-    .stChatInput {
-        background-color: #f0f0f0; /* Cambia este color al que desees */
-    }
-
-    textarea {
-        caret-color: black !important; /* Color del cursor */
-        background-color: #f0f0f0 !important;
-        color: black !important;
-        border: 2px solid #d1d1d1 !important;
-        border-radius: 10px !important;
-    }
-    </style>
-""", unsafe_allow_html=True)
-
 parent_dir = os.path.dirname(os.path.abspath(__file__))
 logo_path = os.path.join(parent_dir, "logo.svg")
 
@@ -84,6 +48,62 @@ page = st_navbar(
     styles=styles,
     options=options,
 )
+
+st.markdown("""
+    <style>
+    /* Fondo blanco para toda la página */
+    .main {
+        background-color: white;
+        color: black;
+    }
+
+    /* Ajustar el color de los encabezados y el texto */
+    h1, h2, h3, h4, h5, h6 {
+        color: black;
+    }
+
+    /* Estilo de los cuadros de texto del asistente y del usuario */
+    div[role="alert"] {
+        background-color: #d1f7c4;
+        border-radius: 10px;
+        padding: 10px;
+        color: black;
+    }
+
+    /* Estilo personalizado para el área de texto de entrada */
+    textarea {
+        caret-color: black !important; /* Color del cursor */
+        background-color: white !important;
+        color: black !important;
+        border: 2px solid #d1d1d1 !important;
+        border-radius: 10px !important;
+        }
+
+    /* Estilo personalizado para el botón de envío */
+    button {
+        background-color: #4CAF50 !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 5px !important;
+        padding: 10px 20px !important;
+        font-size: 16px !important;
+        cursor: pointer !important;
+    }
+
+    /* Hover para el botón de envío */
+    button:hover {
+        background-color: #45a049 !important;
+    }
+
+    /* Ocultar el menú de hamburguesa y la marca de agua de Streamlit */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+
+    /* Ocultar la barra superior (donde dice Deploy) */
+    header {visibility: hidden;}
+                        
+    </style>
+    """, unsafe_allow_html=True)
 
 autores = {
     "(2017)Modern diagnosis and treatment": {
@@ -136,122 +156,128 @@ autores = {
     }
 }
 
+# Cargar la clave de API de OpenAI y el ID del asistente desde los secretos de Streamlit
 api_key = st.secrets["api_keys"]["openai_key"]
 assistant_id = st.secrets["assistant"]["id"]
-project_id = st.secrets["project_id"]["projid"]
 
 # Inicializar el cliente de OpenAI
-client = OpenAI(api_key=api_key, project=project_id)
+client = OpenAI(api_key=api_key)
 
 # Usar columnas para colocar la imagen en la parte superior izquierda
 col1, col2 = st.columns([1, 4])
 
 with col1:
+    # Añadir la imagen del chatbot en la parte superior izquierda
     st.image("chatbot_image.png", width=220)
 
 with col2:
+    # Título de la aplicación
     st.markdown("<h1 style='font-size: 4em;'>Asistente Experto en Hernia Hiatal</h1>", unsafe_allow_html=True)
+
+    # Descripción introductoria
     st.markdown("""
     ## ¡Bienvenido! Soy tu asistente especializado en hernia hiatal. 
     Estoy aquí para ayudarte a responder cualquier pregunta que tengas sobre este tema. 
     Simplemente escribe tu consulta a continuación.
     """)
 
-if "thread_id" not in st.session_state:
-    st.session_state["thread_id"] = None
-    st.session_state["messages"] = []
+
+# Verificar si ya existe un hilo en la sesión actual
+if 'thread_id' not in st.session_state:
+    st.session_state['thread_id'] = None
 
 def format_message(text):
-    if not isinstance(text, str):  # Asegúrate de que text sea un string
-        return str(text)  # Convierte a string si no lo es
-
     citation_pattern = r"【(\d+):(\d+)†source】"
     
     def replace_citation(match):
-        articulo_index = int(match.group(1)) - 1
-        if articulo_index < len(client.files.list().data):
-            articulo = client.files.list().data[articulo_index].filename
-            articulo = articulo[:len(articulo) - 4]
-            return f" ['<a href=\"{autores[articulo]['Link']}\">{articulo}</a>', {autores[articulo]['Autor']} et al., p{int(match.group(2)) + 1}] "
-        else:
-            return match.group(0)  # Retornar el texto original si el índice está fuera de rango
+        articulo = client.files.list().data[int(match.group(1))-1].filename
+        articulo = articulo[:len(articulo)-4]
+        return f" ['<a href=\"{autores[articulo]['Link']}\">{articulo}</a>', {autores[articulo]['Autor']} et al., p{int(match.group(2))+1}] "
 
     return re.sub(citation_pattern, replace_citation, text)
 
-# Mostrar mensajes anteriores
-for msg in st.session_state.messages:
-    if msg["role"] == "user":
-        st.markdown(
-            f"<div style='display: flex; align-items: center; justify-content: flex-end; margin: 5px 0;'>"
-            f"<div style='max-width: 55%; text-align: right; background-color: #0995D4; border-radius: 10px; padding: 10px; color: white; margin-right: 10px;'>"
-            f"{msg['content']}</div>"
-            f"<img src='https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png' alt='Descripción de la imagen' style='width: 60px; height: 50px; border-radius: 5px;'>"
-            f"</div>",
-            unsafe_allow_html=True
-        )
-    else:  # Mensaje del asistente
+def show_conversation():
+    if st.session_state['thread_id']:
+        messages = list(client.beta.threads.messages.list(thread_id=st.session_state['thread_id']))
+        messages.reverse()
+
+        conversation = ""
+        for msg in messages:
+            if msg.role == 'user':
+                conversation += f"<div style='display: flex; align-items: center; justify-content: flex-end; margin: 5px 0;'>" \
+                                f"<div style='max-width: 55%; text-align: right; background-color: #0995D4; border-radius: 10px; padding: 10px; color: white; margin-right: 10px;'>" \
+                                f"{msg.content[0].text.value}</div>" \
+                                f"<img src='https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png' alt='Descripción de la imagen' style='width: 60px; height: 50px; border-radius: 5px;'>" \
+                                f"</div>"
+                
+            elif msg.role == 'assistant':
+                formatted_content = format_message(msg.content[0].text.value)
+                conversation += f"<div style='display: flex; align-items: center; margin: 5px 0;'>" \
+                                f"<img src='https://png.pngtree.com/png-vector/20220611/ourmid/pngtree-chatbot-icon-chat-bot-robot-png-image_4841963.png' alt='Descripción de la imagen' style='width: 50px; height: 50px; border-radius: 5px; margin-right: 10px;'>" \
+                                f"<div style='max-width: 55%; text-align: left; background-color: #F2F2F2; border-radius: 10px; padding: 10px; color: black;'>" \
+                                f"<strong>Asistente:</strong> {formatted_content}</div>" \
+                                f"</div>"
+                                
+        return conversation
+    return ""
+
+
+# Mostrar todos los mensajes en el hilo
+messages_placeholder = st.empty()
+messages_placeholder.markdown(show_conversation(), unsafe_allow_html=True)
+
+# Campo de entrada para la consulta
+user_input = st.text_area("Ingrese su consulta aquí:", height=100)
+
+if st.button("Enviar Consulta"):
+    if user_input:
         try:
-            formatted_content = format_message(msg["content"][0].text.value)
-        except:
-            formatted_content = format_message(msg["content"])
-        st.markdown(
-            f"<div style='display: flex; align-items: center; margin: 5px 0;'>"
-            f"<img src='https://png.pngtree.com/png-vector/20220611/ourmid/pngtree-chatbot-icon-chat-bot-robot-png-image_4841963.png' alt='Descripción de la imagen' style='width: 50px; height: 50px; border-radius: 5px; margin-right: 10px;'>"
-            f"<div style='max-width: 55%; text-align: left; background-color: #F2F2F2; border-radius: 10px; padding: 10px; color: black;'>"
-            f"<strong>Asistente:</strong> {formatted_content}</div>"
-            f"</div>",
-            unsafe_allow_html=True
-        )
+            # Crear un hilo de conversación si no existe
+            if st.session_state['thread_id'] is None:
+                thread = client.beta.threads.create(
+                    messages=[{"role": "user", "content": user_input}]
+                )
+                st.session_state['thread_id'] = thread.id  # Guardar el ID del hilo en la sesión
+            else:
+                # Enviar el mensaje al hilo existente
+                client.beta.threads.messages.create(
+                    thread_id=st.session_state['thread_id'],
+                    role="user",
+                    content=user_input
+                )
 
-# Manejar la entrada del usuario
-if prompt := st.chat_input():
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    
-    # Mostrar la entrada del usuario
-    st.markdown(
-        f"<div style='display: flex; align-items: center; justify-content: flex-end; margin: 5px 0;'>"
-        f"<div style='max-width: 55%; text-align: right; background-color: #0995D4; border-radius: 10px; padding: 10px; color: white; margin-right: 10px;'>"
-        f"{prompt}</div>"
-        f"<img src='https://static.vecteezy.com/system/resources/previews/019/879/186/non_2x/user-icon-on-transparent-background-free-png.png' alt='Descripción de la imagen' style='width: 60px; height: 50px; border-radius: 5px;'>"
-        f"</div>",
-        unsafe_allow_html=True
-    )
-    
-    # Crear un hilo de conversación si no existe
-    if st.session_state['thread_id'] is None:
-        thread = client.beta.threads.create(
-            messages=st.session_state.messages
-        )
-        st.session_state['thread_id'] = thread.id
-    else:
-        client.beta.threads.messages.create(
-            thread_id=st.session_state['thread_id'],
-            role="user",
-            content=prompt
-        )
+            # Ejecutar el hilo con el asistente configurado
+            run = client.beta.threads.runs.create(
+                thread_id=st.session_state['thread_id'],
+                assistant_id=assistant_id
+            )
 
-    # Ejecutar el asistente
-    run = client.beta.threads.runs.create(
-        thread_id=st.session_state['thread_id'],
-        assistant_id=assistant_id
-    )
+            # Esperar un momento para asegurarse de que el asistente haya procesado la solicitud
+            time.sleep(10)  # Espera de 10 segundos para dar tiempo al asistente de responder
 
-    time.sleep(12)
+            # Actualizar los mensajes después de enviar la consulta
+            #formatted_conversation = format_citations(show_conversation())
+            
+            messages_placeholder.markdown(show_conversation(), unsafe_allow_html=True)
 
-    # Obtener la respuesta del asistente
-    messages = list(client.beta.threads.messages.list(thread_id=st.session_state['thread_id']))
-    if messages:  # Asegúrate de que la lista no esté vacía
-        msg = messages[0].content  # Obtener el último mensaje
-        print(msg)
-        st.session_state.messages.append({"role": "assistant", "content": msg})
-        formatted_content = format_message(msg[0].text.value)
+        except Exception as e:
+            st.error(f"Ocurrió un error: {str(e)}")
 
-        # Mostrar la respuesta del asistente
-        st.markdown(
-            f"<div style='display: flex; align-items: center; margin: 5px 0;'>"
-            f"<img src='https://png.pngtree.com/png-vector/20220611/ourmid/pngtree-chatbot-icon-chat-bot-robot-png-image_4841963.png' alt='Descripción de la imagen' style='width: 50px; height: 50px; border-radius: 5px; margin-right: 10px;'>"
-            f"<div style='max-width: 55%; text-align: left; background-color: #F2F2F2; border-radius: 10px; padding: 10px; color: black;'>"
-            f"<strong>Asistente:</strong> {formatted_content}</div>"  # Cambia msg por formatted_content
-            f"</div>",
-            unsafe_allow_html=True
-        )
+# Aplicar estilo con HTML y CSS
+st.markdown(
+    """
+    <style>
+    .custom-info {
+        background-color: #AEECFF   ;
+        padding: 10px;
+        border-radius: 5px;
+        color: black;
+        font-size: 16px;
+    }
+    </style>
+    <div class="custom-info">
+        Nota: Esta es una versión en desarrollo del asistente con integración real.
+    </div>
+    """, unsafe_allow_html=True
+)
+ 
